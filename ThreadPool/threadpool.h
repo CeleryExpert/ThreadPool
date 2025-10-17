@@ -49,12 +49,12 @@ private:
 	// 定义线程处理函数
 	void threadFunc();
 private:
-	std::vector<Thread*> threads_; // 线程列表
+	std::vector<std::unique_ptr<Thread>> threads_; // 线程列表
 	size_t initThreadSize_; // 初始线程数
 	std::queue<std::shared_ptr<Task>> taskQue_; // 任务队列 
 	std::atomic_int taskSize_; // 任务数量
 	int taskQueMaxSize_; // 任务队列最大容量;
-	std::mutex taskQueMutex; // 任务队列互斥锁
+	std::mutex taskQueMutex_; // 任务队列互斥锁
 	std::condition_variable taskQueNotEmpty_; // 任务队列不为空条件变量
 	std::condition_variable taskQueNotFull_; // 任务队列不为满条件变量
 	PoolMode poolMode_;
