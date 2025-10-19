@@ -1,2 +1,10 @@
 ﻿  源.cpp
-  ThreadPool.vcxproj -> D:\Code\C++ projecets\ThreadPool\x64\Debug\ThreadPool.exe
+D:\Code\C++ projecets\ThreadPool\ThreadPool\源.cpp(25,22): error C2672: “Any::cast_”: 未找到匹配的重载函数
+      D:\Code\C++ projecets\ThreadPool\ThreadPool\any.h(17,4):
+      可能是“T Any::cast_(void)”
+          D:\Code\C++ projecets\ThreadPool\ThreadPool\源.cpp(25,22):
+          “T Any::cast_(void)”的显式 模板 参数无效
+              D:\Code\C++ projecets\ThreadPool\ThreadPool\any.h(17,4):
+              函数返回数组
+  
+D:\Code\C++ projecets\ThreadPool\ThreadPool\源.cpp(25,13): error C2737: “c”: 必须初始化 const 对象
