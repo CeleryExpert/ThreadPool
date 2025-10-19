@@ -4,10 +4,12 @@
 
 class Mytask : public Task {
 public:
-	void run() {
+	Any run() {
+		int sum = 0;
 		for (int i = 0;i < 100;i++) {
-			std::cout << i << '\n';
+			sum += i;
 		}
+		return sum;
 	}
 };
 
@@ -15,14 +17,9 @@ public:
 
 int main() {
 	ThreadPool pool;
-	pool.start(20);
-	std::unique_ptr<int>res;
-	//Mytask t;
-	//pool.submitTask(std::make_shared<Mytask>(t));
-	Any a(std::string("123213"));
-	Any b("123");
-	std::cout << a.cast_<std::string>() ;
-	const char c[4] = b.cast_<const char [4]>();
-	while (1);
+	pool.start(1);
+	std::shared_ptr<Task> task1 = std::make_shared<Mytask>();
+	Result res = pool.submitTask(task1);
+	std::cout << res.get().cast_<int>() << std::endl;
 	return 0;
 }

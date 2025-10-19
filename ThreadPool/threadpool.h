@@ -7,6 +7,8 @@
 #include <mutex>
 #include <condition_variable>
 #include <functional>
+#include "any.h"
+#include "semaphore.h"
 
  
 enum class PoolMode{
@@ -14,10 +16,32 @@ enum class PoolMode{
 	MODE_CACHED     // 动态线程数
 };
 
+class Task;
+
+class Result {
+public:
+	Result(std::shared_ptr<Task>, bool);	
+	~Result() = default;
+	Any get();
+	Result(Result&& s) = default;
+	Result& operator = (Result&&) = default;
+	void setVal(Any);
+public:
+	Semaphore sem_;
+	bool isValid_;
+	Any any_;
+	std::shared_ptr<Task> task_;
+};
+
 
 class Task {
 public:
-	virtual void run() = 0;
+	virtual Any run() = 0;
+	void execute();
+	Task();
+	void setResult(Result* res);
+private:
+	Result* result_;
 };
 
 // 线程类型
@@ -39,7 +63,7 @@ public:
 	void setMode(PoolMode mode); // 设置线程池模式
 	void setTaskQueMaxSize(int size); // 设置任务队列最大容量
 	void setInitThreadSize(int size); // 设置初始线程数
-	void submitTask(std::shared_ptr<Task> task); // 提交任务
+	Result submitTask(std::shared_ptr<Task> task); // 提交任务
 	void start(int initThreadSize = 4); // 启动线程池 
 	void stop(); // 停止线程池
 	 

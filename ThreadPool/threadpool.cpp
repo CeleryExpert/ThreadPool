@@ -34,7 +34,7 @@ void ThreadPool::setInitThreadSize(int size) {
 }
 
 // 给线程池提交任务
-void ThreadPool::submitTask(std::shared_ptr<Task> task) {
+Result ThreadPool::submitTask(std::shared_ptr<Task> task) {
 	// 获取锁
 	std::unique_lock<std::mutex> lock(taskQueMutex_);
 
@@ -49,11 +49,12 @@ void ThreadPool::submitTask(std::shared_ptr<Task> task) {
 		return taskQue_.size() < taskQueMaxSize_;
 		})) {
 		std::cerr << "submit task timeout!" << std::endl;
-		return;
+		return Result(std::move(task), false);
 	}
 	taskQue_.push(task);
 	taskSize_++;
 	taskQueNotEmpty_.notify_all(); // 通知消费者线程
+	return Result(std::move(task), true);
 }
 
 // 启动线程池
@@ -88,11 +89,10 @@ void ThreadPool::threadFunc() {
 			taskQueNotFull_.notify_all();
 		}
 		if (item != nullptr) {
-			item->run();
+			item->execute();
 		}
 	}
 }
-
 
 
 Thread::Thread(ThreadFunc func) {
@@ -109,6 +109,44 @@ void Thread::start() {
 	std::thread t(func_);
 	t.detach(); // 分离线程 pthread_detach
 }
+
+
+// Result类的实现
+Result::Result(std::shared_ptr<Task> task, bool isValid)
+	:task_(task), isValid_(isValid) {
+	task->setResult(this);
+}
+
+
+Any Result::get() {
+	if (this->isValid_ == false) {
+		throw "result is invalid";
+	}
+	sem_.wait();
+	return std::move(any_);
+}
+
+void Result::setVal(Any any) {
+	this->any_ = std::move(any);
+	sem_.post();
+}
+
+//Task类的实现
+
+Task::Task()
+	:result_(nullptr)
+{ }
+
+void Task::setResult(Result* res) {
+	result_ = res;
+}
+
+void Task::execute() {
+	this->result_->setVal(run());
+}
+
+
+
 
 
 

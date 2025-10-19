@@ -5,13 +5,14 @@
 class Any {
 public:
 	Any() = default;
+	~Any() = default;
 	Any(const Any&) = delete;
 	Any& operator=(const Any&) = delete;
-	Any(Any&& other) = default;
+	Any(Any&&) = default;
 	Any& operator=(Any&&) = default;
 	template<typename T>
-	Any(T&& data) {
-		base_ = std::make_unique<Derived<T>>(std::forward<T>(data));
+	Any(T data) {
+		base_ = std::make_unique<Derived<T>>(data);
 	}
 	template<typename T>
 	T cast_() {
